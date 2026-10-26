@@ -28,7 +28,7 @@ Board yang dipakai: **Waveshare ESP32-S3 N16R8** (flash 16 MB, PSRAM 8 MB octal)
 | LED | Anoda (kaki panjang) lewat resistor 220 Ω | GPIO 5 |
 | LED | Katoda | GND |
 | DHT22 | VCC | 3V3 |
-| DHT22 | DATA (+ resistor 10 kΩ ke 3V3 jika tanpa PCB) | GPIO 4 |
+| DHT22 | DATA | GPIO 4 |
 | DHT22 | GND | GND |
 
 ## Firmware
@@ -58,7 +58,11 @@ BLE tidak bisa diuji di emulator, jadi pakai HP Android fisik.
 flutter pub get
 flutter run --release
 ```
+atau bisa jg
 
+```bash
+flutter build apk --release
+```
 Saat pertama kali menekan **Scan perangkat**, izinkan *Perangkat di sekitar* (Android 12+) atau *Lokasi* (Android 11 ke bawah).
 
 Broker `broker.emqx.io` bersifat publik. Jika data kelompok lain ikut masuk, ganti `kelompok` di `lib/config.dart` dan `KELOMPOK` di kedua firmware MQTT dengan nama yang lebih unik.
