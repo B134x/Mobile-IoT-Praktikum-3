@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firmware WiFi credentials (copy secrets.example.h to secrets.h locally)
+firmware/**/secrets.h

@@ -22,11 +22,7 @@ class SensorReading {
     }
     final parts = text.trim().split(';');
     if (parts.length != 2) return null;
-    return _checked(
-      double.tryParse(parts[0]),
-      double.tryParse(parts[1]),
-      time,
-    );
+    return _checked(double.tryParse(parts[0]), double.tryParse(parts[1]), time);
   }
 
   /// Parses an MQTT sensor message: JSON `{"suhu":28.5,"hum":70.2}`.
