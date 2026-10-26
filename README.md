@@ -1,4 +1,4 @@
-# Mobile IoT Lab — Kelompok 1
+# Mobile IoT < Kelompok 1 >
 
 Aplikasi Flutter dan firmware ESP32 untuk praktikum *Implementasi Komunikasi Mobile-IoT (BLE/MQTT)*. LED dan sensor DHT22 pada ESP32 dikendalikan lewat dua jalur: BLE (langsung, tanpa internet) dan MQTT (lewat broker).
 
