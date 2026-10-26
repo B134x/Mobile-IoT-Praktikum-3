@@ -6,9 +6,9 @@
 #include <BLE2902.h>
 #include <DHT.h>
 
-#define LED_PIN 5  // ESP32-S3: GPIO 26-32 belong to flash/PSRAM, not usable
+#define LED_PIN 5  // ESP32-S3: GPIO 26-32 buat flash/PSRAM, gbs dpake
 #define DHT_PIN 4
-#define DHT_TYPE DHT22  // ganti DHT11 jika memakai DHT11
+#define DHT_TYPE DHT22 
 
 #define SERVICE_UUID "12345678-1234-5678-1234-56789abcdef0"
 #define LED_UUID     "12345678-1234-5678-1234-56789abcdef1"
