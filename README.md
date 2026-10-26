@@ -2,9 +2,18 @@
 
 Aplikasi Flutter dan firmware ESP32 untuk praktikum *Implementasi Komunikasi Mobile-IoT (BLE/MQTT)*. LED dan sensor DHT22 pada ESP32 dikendalikan lewat dua jalur: BLE (langsung, tanpa internet) dan MQTT (lewat broker).
 
-Tugas pengembangan yang dipilih: **Tugas 3, grafik riwayat suhu 20 pembacaan terakhir.**
+Tugas pengembangan Kelompok 1: **Tugas 3, grafik riwayat suhu 20 pembacaan terakhir.**
 
-## Struktur
+## Pilih board
+
+Rangkaian dan pengaturan Arduino IDE berbeda untuk tiap board. Firmware dan aplikasinya sama; pin LED dipilih otomatis saat firmware dikompilasi.
+
+[![ESP32-S3 N16R8](https://img.shields.io/badge/ESP32--S3-N16R8-1565c0?style=for-the-badge&logo=espressif&logoColor=white)](docs/esp32-s3.md) [![ESP32 DevKit V1](https://img.shields.io/badge/ESP32-DevKit%20V1-37474f?style=for-the-badge&logo=espressif&logoColor=white)](docs/esp32-devkit-v1.md)
+
+- **ESP32-S3 N16R8:** board yang dipakai Kelompok 1.
+- **ESP32 DevKit V1:** board bawaan modul.
+
+## Isi repositori
 
 | Path | Isi |
 |---|---|
@@ -14,92 +23,86 @@ Tugas pengembangan yang dipilih: **Tugas 3, grafik riwayat suhu 20 pembacaan ter
 | `lib/sensor_data.dart` | Model pembacaan, parser data BLE dan MQTT, riwayat 20 pembacaan |
 | `lib/temperature_chart.dart` | Tugas 3: grafik garis riwayat suhu |
 | `lib/latency.dart` | Ringkasan hasil pengukuran latensi |
-| `firmware/p1_ble/` | Firmware Praktikum 1 (BLE) |
-| `firmware/p2_mqtt/` | Firmware Praktikum 2 (MQTT) |
-| `firmware/p3_ble_mqtt/` | Firmware gabungan Praktikum 3, dipakai juga untuk Tugas 3 |
+| `firmware/` | Firmware ESP32 untuk Praktikum 1, 2 dan 3 |
+| `docs/` | Rangkaian dan pengaturan per board |
 | `test/` | Pengujian unit untuk parser, riwayat dan latensi |
-
-## Rangkaian
-
-![Skema pin](docs/skema_pin.png)
-
-Board yang dipakai adalah **Waveshare ESP32-S3 N16R8**, dipasang di breadboard dengan satu baris pin di tiap sisi. Pin 3V3 dan GND disalurkan ke satu kolom breadboard, lalu LED dan DHT22 mengambil daya dari kolom tersebut.
-
-| Komponen | Pin komponen | Tersambung ke |
-|---|---|---|
-| LED | Anoda (kaki panjang) lewat resistor 1,2 kΩ | GPIO 5 |
-| LED | Katoda | GND |
-| DHT22 (modul 3 pin) | + | 3V3 |
-| DHT22 (modul 3 pin) | OUT | GPIO 4 |
-| DHT22 (modul 3 pin) | − | GND |
-
-Beberapa hal berbeda dari modul:
-
-- **LED di GPIO 5, bukan GPIO 26.** Pada ESP32-S3, GPIO 26–32 dipakai flash/PSRAM dan GPIO 35–37 dipakai PSRAM octal.
-- **Resistor LED 1,2 kΩ, bukan 220 Ω.** Arusnya lebih kecil sehingga LED sedikit lebih redup, tetapi tetap aman dan terlihat jelas.
-- **Tanpa resistor pull-up untuk DHT22.** Modul 3 pin sudah membawa resistor pull-up di PCB-nya.
 
 ## Firmware
 
-1. Arduino IDE 2.x dengan board package **esp32 by Espressif**.
-2. Pengaturan di menu **Tools**:
+### Persiapan
 
-   | Opsi | Nilai |
-   |---|---|
-   | Board | ESP32S3 Dev Module |
-   | Flash Size | 16MB (128Mb) |
-   | PSRAM | OPI PSRAM |
-   | Partition Scheme | Huge APP (3MB No OTA/1MB SPIFFS) |
-   | USB CDC On Boot | *Enabled* jika kabel di port USB bawaan (native); *Disabled* jika di port UART |
+1. Pasang Arduino IDE 2.x. Di **File → Preferences**, tambahkan `https://espressif.github.io/arduino-esp32/package_esp32_index.json` pada *Additional boards manager URLs*, lalu pasang **esp32 by Espressif Systems** dari Boards Manager.
+2. Pasang library dari Library Manager: *DHT sensor library* (Adafruit), *Adafruit Unified Sensor* dan *PubSubClient*.
+3. Atur board di menu **Tools** sesuai halaman board di atas.
 
-3. Library: *DHT sensor library* (Adafruit), *Adafruit Unified Sensor*, *PubSubClient*.
-4. Untuk `p2_mqtt` dan `p3_ble_mqtt`: salin `secrets.example.h` menjadi `secrets.h` di folder yang sama, lalu isi SSID dan password hotspot **2.4 GHz**. `secrets.h` tidak ikut ke GitHub.
-5. Upload, lalu buka Serial Monitor pada 115200 baud.
+### Kredensial WiFi
 
-Jika upload macet di *Connecting...*: tahan tombol BOOT, tekan dan lepas RESET, lalu lepas BOOT.
+Firmware MQTT membaca nama dan password WiFi dari `secrets.h`. Di folder `p2_mqtt` dan `p3_ble_mqtt`, salin `secrets.example.h` menjadi `secrets.h`, lalu isi dengan hotspot **2.4 GHz**. ESP32 tidak mendukung 5 GHz. File `secrets.h` tidak ikut ke GitHub.
+
+### Urutan upload
+
+| Folder | Untuk | Butuh WiFi |
+|---|---|---|
+| `firmware/p1_ble/` | Praktikum 1 (BLE) | Tidak |
+| `firmware/p2_mqtt/` | Praktikum 2 (MQTT) | Ya |
+| `firmware/p3_ble_mqtt/` | Praktikum 3 dan Tugas 3 (BLE dan MQTT sekaligus) | Ya |
+
+Setiap firmware menggantikan firmware sebelumnya. Setelah upload, buka Serial Monitor pada 115200 baud.
 
 ## Aplikasi
 
-BLE tidak bisa diuji di emulator, jadi pakai HP Android fisik.
+### Menjalankan
+
+BLE tidak bisa diuji di emulator, jadi gunakan HP Android fisik.
 
 ```bash
 flutter pub get
 flutter run --release
 ```
-atau bisa jg
+
+Untuk membuat APK yang bisa dibagikan ke anggota kelompok:
 
 ```bash
 flutter build apk --release
 ```
-Saat pertama kali menekan **Scan perangkat**, izinkan *Perangkat di sekitar* (Android 12+) atau *Lokasi* (Android 11 ke bawah).
 
-Broker `broker.emqx.io` bersifat publik. Jika data kelompok lain ikut masuk, ganti `kelompok` di `lib/config.dart` dan `KELOMPOK` di kedua firmware MQTT dengan nama yang lebih unik.
+Hasilnya ada di `build/app/outputs/flutter-apk/app-release.apk`.
+
+### Izin
+
+Saat pertama kali menekan **Scan perangkat**, izinkan *Perangkat di sekitar* (Android 12 ke atas) atau *Lokasi* (Android 11 ke bawah).
+
+### Broker publik
+
+Broker `broker.emqx.io` bisa dipakai siapa saja. Jika data kelompok lain ikut masuk, ganti `kelompok` di `lib/config.dart` dan `KELOMPOK` di kedua firmware MQTT dengan nama yang lebih unik.
 
 ## Tugas 3: grafik riwayat suhu
 
-**Cara kerja.** Setiap pembacaan, baik notify BLE (`28.5;70.2`) maupun pesan MQTT (`{"suhu":28.5,"hum":70.2}`), diubah menjadi `SensorReading` lalu disimpan di `ReadingHistory` berkapasitas 20. Saat pembacaan ke-21 masuk, yang paling lama dibuang (FIFO). Grafik digambar ulang setiap ada data baru.
+### Cara kerja
 
-**Riwayat per jalur.** Tab BLE dan tab MQTT masing-masing punya grafik sendiri. Firmware gabungan mengirim pembacaan yang sama lewat kedua jalur, jadi menggabungkannya akan membuat setiap titik muncul dua kali. Riwayat dikosongkan setiap kali koneksi baru dibuat.
+Setiap pembacaan, baik notify BLE (`28.5;70.2`) maupun pesan MQTT (`{"suhu":28.5,"hum":70.2}`), diubah menjadi `SensorReading` lalu disimpan di `ReadingHistory` berkapasitas 20. Saat pembacaan ke-21 masuk, yang paling lama dibuang. Grafik digambar ulang setiap ada data baru.
 
-**Membaca grafik.**
+Tab BLE dan tab MQTT masing-masing punya grafik sendiri. Firmware gabungan mengirim pembacaan yang sama lewat kedua jalur, jadi menggabungkannya akan membuat setiap titik muncul dua kali. Riwayat dikosongkan setiap kali koneksi baru dibuat.
 
-- Sumbu X: pembacaan ke-1 sampai ke-20, paling kiri yang terlama.
-- Sumbu Y: suhu dalam °C, dengan rentang minimal 2 °C agar derau 0,1 °C tidak tampak seperti lonjakan.
-- Di atas grafik: jumlah pembacaan, suhu minimum, rata-rata dan maksimum.
-- Ketuk sebuah titik untuk melihat suhu dan jam pembacaannya.
+### Membaca grafik
+
+- **Sumbu X:** pembacaan ke-1 sampai ke-20, paling kiri yang terlama.
+- **Sumbu Y:** suhu dalam °C, dengan rentang minimal 2 °C agar derau 0,1 °C tidak tampak seperti lonjakan.
+- **Ringkasan di atas grafik:** jumlah pembacaan, suhu minimum, rata-rata dan maksimum.
+- **Titik:** ketuk untuk melihat suhu dan jam pembacaannya.
 
 Firmware gabungan mengirim data tiap 3 detik, jadi 20 pembacaan mencakup sekitar 1 menit.
 
-**Skenario uji.**
+### Skenario uji
 
-| No | Skenario | Hasil yang diharapkan | Hasil |
-|---|---|---|---|
-| 1 | Hubungkan lewat BLE, tunggu 1 menit | Grafik terisi dari kiri sampai 20/20 | |
-| 2 | Tunggu pembacaan ke-21 | Titik terlama hilang, grafik bergeser ke kiri | |
-| 3 | Pegang sensor DHT22 selama 30 detik | Garis naik, nilai maks bertambah | |
-| 4 | Ulangi skenario 1 dan 3 di tab MQTT | Perilaku sama, dari jalur MQTT | |
-| 5 | Ketuk salah satu titik | Muncul suhu dan jam pembacaan | |
-| 6 | Putuskan lalu hubungkan lagi | Riwayat mulai dari 0/20 | |
+| No | Skenario | Hasil yang diharapkan |
+|---|---|---|
+| 1 | Hubungkan lewat BLE, tunggu 1 menit | Grafik terisi dari kiri sampai 20/20 |
+| 2 | Tunggu pembacaan ke-21 | Titik terlama hilang, grafik bergeser ke kiri |
+| 3 | Pegang atau tiup sensor DHT22 | Garis naik, nilai maksimum bertambah |
+| 4 | Ulangi skenario 1 dan 3 di tab MQTT | Perilaku sama, dari jalur MQTT |
+| 5 | Ketuk salah satu titik | Muncul suhu dan jam pembacaan |
+| 6 | Putuskan lalu hubungkan lagi | Riwayat mulai dari 0/20 |
 
 ## Pengujian unit
 

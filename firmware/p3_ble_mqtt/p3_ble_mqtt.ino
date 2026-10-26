@@ -13,7 +13,13 @@
 #include <DHT.h>
 #include "secrets.h"  // WIFI_SSID, WIFI_PASS: copy secrets.example.h
 
-#define LED_PIN 5  // ESP32-S3: GPIO 26-32 belong to flash/PSRAM, not usable
+// LED: GPIO 26 as in the module. The ESP32-S3 uses GPIO 5 instead, because its
+// GPIO 26-32 belong to the flash/PSRAM. Chosen automatically when compiling.
+#if CONFIG_IDF_TARGET_ESP32S3
+#define LED_PIN 5
+#else
+#define LED_PIN 26
+#endif
 #define DHT_PIN 4
 #define DHT_TYPE DHT22
 
