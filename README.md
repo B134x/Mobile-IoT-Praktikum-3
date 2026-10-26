@@ -21,15 +21,23 @@ Tugas pengembangan yang dipilih: **Tugas 3, grafik riwayat suhu 20 pembacaan ter
 
 ## Rangkaian
 
-Board yang dipakai: **Waveshare ESP32-S3 N16R8** (flash 16 MB, PSRAM 8 MB octal). LED dipindah dari GPIO 26 di modul ke **GPIO 5**, karena pada ESP32-S3 GPIO 26–32 dipakai flash/PSRAM, dan GPIO 35–37 dipakai PSRAM octal.
+![Skema pin](docs/skema_pin.png)
 
-| Komponen | Pin komponen | Pin ESP32-S3 |
+Board yang dipakai adalah **Waveshare ESP32-S3 N16R8**, dipasang di breadboard dengan satu baris pin di tiap sisi. Pin 3V3 dan GND disalurkan ke satu kolom breadboard, lalu LED dan DHT22 mengambil daya dari kolom tersebut.
+
+| Komponen | Pin komponen | Tersambung ke |
 |---|---|---|
-| LED | Anoda (kaki panjang) lewat resistor 220 Ω | GPIO 5 |
+| LED | Anoda (kaki panjang) lewat resistor 1,2 kΩ | GPIO 5 |
 | LED | Katoda | GND |
-| DHT22 | VCC | 3V3 |
-| DHT22 | DATA | GPIO 4 |
-| DHT22 | GND | GND |
+| DHT22 (modul 3 pin) | + | 3V3 |
+| DHT22 (modul 3 pin) | OUT | GPIO 4 |
+| DHT22 (modul 3 pin) | − | GND |
+
+Beberapa hal berbeda dari modul:
+
+- **LED di GPIO 5, bukan GPIO 26.** Pada ESP32-S3, GPIO 26–32 dipakai flash/PSRAM dan GPIO 35–37 dipakai PSRAM octal.
+- **Resistor LED 1,2 kΩ, bukan 220 Ω.** Arusnya lebih kecil sehingga LED sedikit lebih redup, tetapi tetap aman dan terlihat jelas.
+- **Tanpa resistor pull-up untuk DHT22.** Modul 3 pin sudah membawa resistor pull-up di PCB-nya.
 
 ## Firmware
 
